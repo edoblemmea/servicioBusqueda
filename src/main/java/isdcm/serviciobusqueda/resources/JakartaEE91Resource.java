@@ -7,6 +7,7 @@ import jakarta.json.JsonObject;
 import jakarta.json.JsonObjectBuilder;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.GET;
+import jakarta.ws.rs.POST;
 import jakarta.ws.rs.PUT;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
@@ -41,6 +42,29 @@ public class JakartaEE91Resource {
             @QueryParam("anio") Integer anio,
             @QueryParam("mes") Integer mes,
             @QueryParam("dia") Integer dia) {
+        return ejecutarBusqueda(titulo, autor, anio, mes, dia);
+    }
+
+    @POST
+    @Path("buscar")
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response buscarVideosPost(JsonObject filtros) {
+        if (filtros == null) {
+            return Response.status(Response.Status.BAD_REQUEST)
+                    .entity(new ErrorResponse("Debes enviar un JSON con los filtros de busqueda"))
+                    .build();
+        }
+
+        String titulo = obtenerTexto(filtros, "titulo");
+        String autor = obtenerTexto(filtros, "autor");
+        Integer anio = obtenerEntero(filtros, "anio");
+        Integer mes = obtenerEntero(filtros, "mes");
+        Integer dia = obtenerEntero(filtros, "dia");
+
+        return ejecutarBusqueda(titulo, autor, anio, mes, dia);
+    }
+
+    private Response ejecutarBusqueda(String titulo, String autor, Integer anio, Integer mes, Integer dia) {
         String errorValidacion = validarFecha(anio, mes, dia);
         if (errorValidacion != null) {
             return Response.status(Response.Status.BAD_REQUEST)
@@ -55,6 +79,27 @@ public class JakartaEE91Resource {
             return Response.serverError()
                     .entity(new ErrorResponse("No se ha podido realizar la busqueda de videos"))
                     .build();
+        }
+    }
+
+    private String obtenerTexto(JsonObject json, String clave) {
+        if (!json.containsKey(clave) || json.isNull(clave)) {
+            return null;
+        }
+
+        String valor = json.getString(clave, "").trim();
+        return valor.isEmpty() ? null : valor;
+    }
+
+    private Integer obtenerEntero(JsonObject json, String clave) {
+        if (!json.containsKey(clave) || json.isNull(clave)) {
+            return null;
+        }
+
+        try {
+            return json.getInt(clave);
+        } catch (Exception ex) {
+            return null;
         }
     }
 

@@ -122,63 +122,6 @@ public class video {
         this.usuarioRegistro = usuarioRegistro;
     }
 
-    public boolean existe() throws ClassNotFoundException, SQLException {
-        String sql = "SELECT identificador FROM video WHERE identificador = ?";
-        try (Connection connection = DatabaseConfig.getConnection();
-                PreparedStatement statement = connection.prepareStatement(sql)) {
-            statement.setString(1, identificador);
-            try (ResultSet resultSet = statement.executeQuery()) {
-                return resultSet.next();
-            }
-        }
-    }
-
-    public void guardar() throws ClassNotFoundException, SQLException {
-        String sql = "INSERT INTO video "
-                + "(identificador, titulo, autor, fecha_creacion, duracion, num_reproducciones, descripcion, formato, ruta_video, usuario_registro) "
-                + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-        try (Connection connection = DatabaseConfig.getConnection();
-                PreparedStatement statement = connection.prepareStatement(sql)) {
-            statement.setString(1, identificador);
-            statement.setString(2, titulo);
-            statement.setString(3, autor);
-            statement.setString(4, fechaCreacion);
-            statement.setString(5, duracion);
-            statement.setInt(6, numReproducciones);
-            statement.setString(7, descripcion);
-            statement.setString(8, formato);
-            statement.setString(9, rutaVideo == null || rutaVideo.isEmpty() ? null : rutaVideo);
-            statement.setString(10, usuarioRegistro);
-            statement.executeUpdate();
-        }
-    }
-
-    public static List<video> listarTodos() throws ClassNotFoundException, SQLException {
-        List<video> videos = new ArrayList<>();
-        String sql = "SELECT identificador, titulo, autor, fecha_creacion, duracion, num_reproducciones, "
-                + "descripcion, formato, ruta_video, usuario_registro "
-                + "FROM video ORDER BY fecha_creacion DESC, titulo ASC";
-        try (Connection connection = DatabaseConfig.getConnection();
-                PreparedStatement statement = connection.prepareStatement(sql);
-                ResultSet resultSet = statement.executeQuery()) {
-            while (resultSet.next()) {
-                videos.add(new video(
-                        resultSet.getString("identificador"),
-                        resultSet.getString("titulo"),
-                        resultSet.getString("autor"),
-                        resultSet.getString("fecha_creacion"),
-                        resultSet.getString("duracion"),
-                        resultSet.getInt("num_reproducciones"),
-                        resultSet.getString("descripcion"),
-                        resultSet.getString("formato"),
-                        resultSet.getString("ruta_video"),
-                        resultSet.getString("usuario_registro")
-                ));
-            }
-        }
-        return videos;
-    }
-
     public static video buscarPorIdentificador(String identificador) throws ClassNotFoundException, SQLException {
         String sql = "SELECT identificador, titulo, autor, fecha_creacion, duracion, num_reproducciones, "
                 + "descripcion, formato, ruta_video, usuario_registro "

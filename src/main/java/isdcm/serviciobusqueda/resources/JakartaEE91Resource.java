@@ -1,4 +1,4 @@
-package isdcm.webapp1.resources;
+package isdcm.serviciobusqueda.resources;
 
 import jakarta.json.Json;
 import jakarta.json.JsonArray;
